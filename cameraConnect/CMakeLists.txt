@@ -7,6 +7,9 @@ project(cameraConnect)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  image_transport
+  sensor_msgs
+  cv_bridge
 )
 
 ## System dependencies are found with CMake's conventions
@@ -101,7 +104,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES cameraConnect
-  CATKIN_DEPENDS roscpp std_msgs
+  CATKIN_DEPENDS roscpp std_msgs image_transport sensor_msgs cv_bridge
 #  DEPENDS system_lib
 )
 
@@ -127,7 +130,8 @@ include_directories(
 # add_dependencies(cameraConnect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(cameraConnect_node src/cameraConnect_node.cpp)
+add_executable(cameraConnect_node src/cameraConnect.cpp
+src/openCV.cpp src/distinctColors.cpp cropImage.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
