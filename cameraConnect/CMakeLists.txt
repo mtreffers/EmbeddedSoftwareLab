@@ -131,7 +131,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(cameraConnect_node src/cameraConnect.cpp
-src/openCV.cpp src/distinctColors.cpp cropImage.cpp)
+src/openCV.cpp src/cropImage.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

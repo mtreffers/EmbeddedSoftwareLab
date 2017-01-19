@@ -1,0 +1,5 @@
+vind voor en achtergrond kleur
+maak binary image op basis van voor en achtergrond kleur
+watershed/contours op binary
+check if line is in mid (top and bottom) and steer accordingly
+send via bleutooth

@@ -11,11 +11,14 @@
 using namespace std;
 using namespace cv;
 
-int line_detect(Mat src, std::string window);
-int distinctColors(int number, Mat image);
-Mat cropImage(Mat image);
+//Global variables
+int measurePoints =3;
 
-static std::string OPENCV_WINDOW = "Open CV voor koosjeee";
+
+// Function header
+int** calc_line(Mat src, int measurePoints);
+
+static std::string OPENCV_WINDOW = "Original image";
 
 class ImageConverter
 {
@@ -54,23 +57,20 @@ public:
       return;
     }
 
-Point center = Point(cv_ptr->image.cols/2,cv_ptr->image.rows/2);
-Mat image;
-warpAffine(cv_ptr->image,image,getRotationMatrix2D(center,-90,1),cv_ptr->image.size());
+    //Rotate image
+    Point center = Point(cv_ptr->image.cols/2,cv_ptr->image.rows/2);
+    Mat image;
+    warpAffine(cv_ptr->image,image,getRotationMatrix2D(center,-90,1),cv_ptr->image.size());
 
-    //Detect lines
-    cropImage(image);
-      distinctColors(10,image);
-      line_detect(image, OPENCV_WINDOW);
+  //original image
+  namedWindow(OPENCV_WINDOW,CV_WINDOW_AUTOSIZE);
+  imshow(OPENCV_WINDOW,image);
+
+  //Detect lines
+  int** out = calc_line(image,measurePoints);
+
       cv::waitKey(300);
 
-    // Draw an example circle on the video stream
-    /*if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
-      cv::circle(cvnamedWindow( source_window, CV_WINDOW_AUTOSIZE );namedWindow( source_window, CV_WINDOW_AUTOSIZE );namedWindow( source_window, CV_WINDOW_AUTOSIZE );_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));*/
-
-    // Update GUI Window
-    /*cv::imshow(OPENCV_WINDOW, cv_ptr->image);
-    cv::waitKey(3);*/
 
     // Output modified video stream
     image_pub_.publish(cv_ptr->toImageMsg());

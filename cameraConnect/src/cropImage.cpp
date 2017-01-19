@@ -11,16 +11,14 @@
 using namespace std;
 using namespace cv;
 
-Mat cropImage(Mat image){
+Mat cropImage(Mat image, int factor){
   // Setup a rectangle to define your region of interest
-  cv::Rect myROI(0, (image.size().height/2)-1, image.size().width, image.size().height/2);
+  // cv::Rect myROI(165,(image.size().height/factor)-1, image.size().width-330, image.size().height/factor);
+  cv::Rect myROI(0,(image.size().height/factor)-1, image.size().width-1, image.size().height/factor);
 
   // Crop the full image to that image contained by the rectangle myROI
   // Note that this doesn't copy the data
   cv::Mat croppedImage = image(myROI);
-
-  namedWindow("CroppedImage",CV_WINDOW_AUTOSIZE);
-  imshow("CroppedImage",croppedImage);
 
   return croppedImage;
 }
