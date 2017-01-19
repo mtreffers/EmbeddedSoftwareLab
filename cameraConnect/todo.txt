@@ -1,0 +1,2 @@
+Aanpassen grootte interval "decide"
+Wat te doen bij einde lijn?
