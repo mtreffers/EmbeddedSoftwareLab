@@ -11,10 +11,13 @@
 using namespace std;
 using namespace cv;
 
-Mat cropImage(Mat image, int factor){
+Mat cropImage(Mat image, int factor, int place){
   // Setup a rectangle to define your region of interest
   // cv::Rect myROI(165,(image.size().height/factor)-1, image.size().width-330, image.size().height/factor);
-  cv::Rect myROI(0,(image.size().height/factor)-1, image.size().width-1, image.size().height/factor);
+  float height = image.size().height/factor;
+  float startHeight = (factor-1-place)*height;
+
+  cv::Rect myROI(0,startHeight-1, image.size().width-1, height);
 
   // Crop the full image to that image contained by the rectangle myROI
   // Note that this doesn't copy the data
