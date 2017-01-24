@@ -87,12 +87,16 @@ int mc_l_c = 0, mc_r_c = 0;
     mc_y += y;
   }
 
+  if(debug == 1){
+    cout << mc_l << " " << mc_l_c << " " << mc_r << " " << mc_r_c << "\n";
+  }
+
   if(mc_r_c == 0){
-    linePos_x = image.cols-1;
-  }else if(mc_l_c == 0){
     linePos_x = 0;
+  }else if(mc_l_c == 0){
+    linePos_x = image.cols-1;
   }else{
-    linePos_x = ((mc_l/mc_l_c)+(mc_r/mc_r_c))/2;
+    linePos_x = (2*(mc_l/mc_l_c)+2*(mc_r/mc_r_c)-image.cols)/2;
   }
 
   if(mc_l_c != 0 || mc_r_c != 0){

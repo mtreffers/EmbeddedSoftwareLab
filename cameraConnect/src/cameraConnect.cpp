@@ -33,11 +33,11 @@ class ImageConverter
 
 public:
   ImageConverter()
-    : it_(nh_)
+  : it_(nh_)
   {
     // Subscrive to input video feed and publish output video feed
     image_sub_ = it_.subscribe("/camera/image", 1,
-      &ImageConverter::imageCb, this, image_transport::TransportHints("compressed"));
+    &ImageConverter::imageCb, this, image_transport::TransportHints("compressed"));
     chatter_pub = nh_.advertise<geometry_msgs::Twist>("prorobot", 100);
 
     cv::namedWindow(OPENCV_WINDOW);
@@ -69,23 +69,23 @@ public:
     flip(image, image,1);
 
 
-  //original image
-  namedWindow(OPENCV_WINDOW,CV_WINDOW_AUTOSIZE);
-  imshow(OPENCV_WINDOW,image);
+    //original image
+    namedWindow(OPENCV_WINDOW,CV_WINDOW_AUTOSIZE);
+    imshow(OPENCV_WINDOW,image);
 
-  //Detect lines
-  Point2f middle = calc_line(image,measurePoints,debug);
-
-
-  //Decide what to do with image
-  Point2f movement = decide(middle,image.size(),std_speed, debug);
+    //Detect lines
+    Point2f middle = calc_line(image,measurePoints,debug);
 
 
-  if(debug == 1){
-    cv::waitKey(300);
-  }
+    //Decide what to do with image
+    Point2f movement = decide(middle,image.size(),std_speed, debug);
 
-  //Construct twist message
+
+    if(debug == 1){
+      cv::waitKey(300);
+    }
+
+    //Construct twist message
     geometry_msgs::Twist message;
     message.linear.x = movement.x;
     message.angular.z = movement.y;
@@ -110,25 +110,31 @@ Point2f decide(Point2f middle, cv::Size size, float speed, int debug){
   int sign;
 
   if(x < width/2){
+    if(debug == 1){
+      cout << "left\n ";
+    }
     dif = width/2 - x;
     sign = -1;
   }else{
+    if(debug == 1){
+      cout << "right\n ";
+    }
     dif = x - width/2;
     sign = 1;
   }
 
-float interval = width/10;
+  float interval = width/10;
 
   for(int i = 0; i < 5; i++){
     // cout << dif << " " << i*interval << " " << (i+1)*interval << " " << i << "\n";
-    if((dif > i*interval) &&(dif < (i + 1)*interval)){
+    if((dif >= i*interval) &&(dif <= (i + 1)*interval)){
       Point2f out;// = (float*)calloc(2,sizeof(float));
       out.x = sign*(2.0/5.0)*i;
       out.y = (-(1.0/5.0)*i + 1.0)*speed;
 
-if(debug == 1){
-  cout << "Decide: " << out << "\n";
-}
+      if(debug == 1){
+        cout << "Decide: " << out << " i=" << i << "\n";
+      }
 
       return out;
     }
