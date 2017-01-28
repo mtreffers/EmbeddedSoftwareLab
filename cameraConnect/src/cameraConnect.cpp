@@ -1,3 +1,11 @@
+/**
+Group number: 31
+Student 1:
+  Maurice Willemsen,4366662
+Student 2:
+  Michael Treffers, 4374614
+*/
+
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <image_transport/image_transport.h>
@@ -15,17 +23,17 @@ using namespace cv;
 //Global variables
 int measurePoints =3;
 int debug = 1;
-float std_speed = 1.5; //range:[-2,2]
+float std_speed = 1.1; //range:[-2,2]
+static std::string OPENCV_WINDOW = "Original image";
 
 
 // Function header
 Point2f calc_line(Mat src, int measurePoints, int debug);
 Point2f decide(Point2f middle, cv::Size size, float speed, int debug);
 
-static std::string OPENCV_WINDOW = "Original image";
-
 class ImageConverter
 {
+  // Create publisher and Subscriber
   ros::NodeHandle nh_;
   ros::Publisher chatter_pub;
   image_transport::ImageTransport it_;
@@ -35,14 +43,15 @@ public:
   ImageConverter()
   : it_(nh_)
   {
-    // Subscrive to input video feed and publish output video feed
+    // Subscribe to input and make publisher to advertise twist messages on /cmd-vel
     image_sub_ = it_.subscribe("/camera/image", 1,
     &ImageConverter::imageCb, this, image_transport::TransportHints("compressed"));
-    chatter_pub = nh_.advertise<geometry_msgs::Twist>("prorobot", 100);
+    chatter_pub = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
 
     cv::namedWindow(OPENCV_WINDOW);
   }
 
+  // Destroy window on closing program
   ~ImageConverter()
   {
     cv::destroyWindow(OPENCV_WINDOW);
@@ -50,6 +59,7 @@ public:
 
   void imageCb(const sensor_msgs::ImageConstPtr& msg)
   {
+    //Try to read and store ros message
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
@@ -64,22 +74,20 @@ public:
     //Rotate image
     Point center = Point(cv_ptr->image.cols/2,cv_ptr->image.rows/2);
     Mat image;
-    // warpAffine(cv_ptr->image,image,getRotationMatrix2D(center,-90,1),cv_ptr->image.size());
     transpose(cv_ptr->image, image);
     flip(image, image,1);
 
-
-    //original image
-    namedWindow(OPENCV_WINDOW,CV_WINDOW_AUTOSIZE);
-    imshow(OPENCV_WINDOW,image);
+    //Show original image
+    if(debug ==1){
+      namedWindow(OPENCV_WINDOW,CV_WINDOW_AUTOSIZE);
+      imshow(OPENCV_WINDOW,image);
+    }
 
     //Detect lines
     Point2f middle = calc_line(image,measurePoints,debug);
 
-
     //Decide what to do with image
     Point2f movement = decide(middle,image.size(),std_speed, debug);
-
 
     if(debug == 1){
       cv::waitKey(300);
@@ -97,47 +105,9 @@ public:
 
 int main(int argc, char** argv)
 {
+  // Initialize node and send/receive ROS messages
   ros::init(argc, argv, "image_converter");
   ImageConverter ic;
   ros::spin();
   return 0;
-}
-
-Point2f decide(Point2f middle, cv::Size size, float speed, int debug){
-  float width = size.width;
-  float x = middle.x;
-  float dif;
-  int sign;
-
-  if(x < width/2){
-    if(debug == 1){
-      cout << "left\n ";
-    }
-    dif = width/2 - x;
-    sign = -1;
-  }else{
-    if(debug == 1){
-      cout << "right\n ";
-    }
-    dif = x - width/2;
-    sign = 1;
-  }
-
-  float interval = width/10;
-
-  for(int i = 0; i < 5; i++){
-    // cout << dif << " " << i*interval << " " << (i+1)*interval << " " << i << "\n";
-    if((dif >= i*interval) &&(dif <= (i + 1)*interval)){
-      Point2f out;// = (float*)calloc(2,sizeof(float));
-      out.x = sign*(2.0/5.0)*i;
-      out.y = (-(1.0/5.0)*i + 1.0)*speed;
-
-      if(debug == 1){
-        cout << "Decide: " << out << " i=" << i << "\n";
-      }
-
-      return out;
-    }
-  }
-
 }
